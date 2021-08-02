@@ -10,6 +10,20 @@
 //Library setup for particle and GPS
 #include "Particle.h"
 #include "TinyGPS++.h"
+const unsigned long PUBLISH_PERIOD = 120000;
+const unsigned long SERIAL_PERIOD = 5000;
+const unsigned long MAX_GPS_AGE_MS = 10000; 
+
+TinyGPSPlus gps;
+//Setting offset to PST
+const int UTC_offset = -7; 
+unsigned long lastSerial = 0;
+unsigned long lastPublish = 0;
+unsigned long startFix = 0;
+bool gettingFix = false;
+//Longitude,Latitude,Altitude
+float lat,lon,alt;
+
 
 
 //rotation setting for oled, and its defines,library's, etc
@@ -74,7 +88,7 @@ void loop()
   airQualitySensor();
 
 //sets evrything for oled to work
-displaySetup();
+displaySettings();
 
 //sets the style of oled text
 OledText();
@@ -92,7 +106,6 @@ OledText();
   display.setTextSize(1);
   display.setRotation(rot);
   display.printf("Airquality is %i\n", sensor.getValue());
-  display.printf("humidity is %f\n" ,bme.readHumidity());
   display.display();
   }
 
@@ -110,7 +123,7 @@ OledText();
 
 
 
-
+//Function for Air Quality Sensor
 void airQualitySensor()
 {
   int quality = sensor.slope();
