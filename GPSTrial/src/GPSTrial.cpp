@@ -2,7 +2,7 @@
 //       THIS IS A GENERATED FILE - DO NOT EDIT       //
 /******************************************************/
 
-#line 1 "c:/Users/IoT_Instructor/Documents/TSL/GPSTracker/GPSTrial/src/GPSTrial.ino"
+#line 1 "c:/Users/kalif/Documents/IoT/Capstone-Project/GPSTrial/src/GPSTrial.ino"
 /*
  * Project GPSTrial
  * Description: Trial Program to Use TinyGPS++ on the Particle Argon with Display to OLED
@@ -26,7 +26,7 @@ void setup();
 void loop();
 void displayInfo();
 void helloWorld();
-#line 20 "c:/Users/IoT_Instructor/Documents/TSL/GPSTracker/GPSTrial/src/GPSTrial.ino"
+#line 20 "c:/Users/kalif/Documents/IoT/Capstone-Project/GPSTrial/src/GPSTrial.ino"
 #define OLED_RESET D4
 Adafruit_SSD1306 display(OLED_RESET);
 

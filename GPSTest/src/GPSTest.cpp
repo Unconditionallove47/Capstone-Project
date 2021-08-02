@@ -3,7 +3,7 @@
 /******************************************************/
 
 #include "Particle.h"
-#line 1 "c:/Users/IoT_Instructor/Documents/IoT/Cohort5/kalif/Capstone-Project/GPSTest/src/GPSTest.ino"
+#line 1 "c:/Users/kalif/Documents/IoT/Capstone-Project/GPSTest/src/GPSTest.ino"
 /*
  * Project GPSTest
  * Description:
@@ -13,7 +13,7 @@
 
 void setup();
 void loop();
-#line 8 "c:/Users/IoT_Instructor/Documents/IoT/Cohort5/kalif/Capstone-Project/GPSTest/src/GPSTest.ino"
+#line 8 "c:/Users/kalif/Documents/IoT/Capstone-Project/GPSTest/src/GPSTest.ino"
 #define GPSSerial Serial1
 void setup() {
   Serial.begin(9600);
