@@ -46,7 +46,7 @@ Servo myServo;
 
 //Water Sensor Setup
 int waterSensor = A0;
-int val = 0;
+int waterSensorValue = 0;
 
 // myServo.attach(A3);
 
@@ -55,13 +55,15 @@ void setup()
 {
 
   Serial.begin(9600);
+  //Oled display turned on
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
   // The GPS module initialization
   Serial1.begin(9600);
   startFix = millis();
   gettingFix = true;
 
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+
 
   //PinMode setup for water sensor
   pinMode(waterSensor, INPUT);
@@ -82,7 +84,7 @@ void setup()
 // loop() runs over and over again, as quickly as it can execute.
 void loop()
 {
-
+//turns on gps printouts
   while (Serial1.available() > 0)
   {
     if (gps.encode(Serial1.read()))
@@ -93,19 +95,19 @@ void loop()
   delay(1000);
 
   //Reading WaterSensor
-  val = analogRead(waterSensor);
+  waterSensorValue = analogRead(waterSensor);
   Serial.printf("Value is %d \n", waterSensor);
 
-  //tests the current air quality
+  
   airQualitySensor();
 
-  //sets evrything for oled to work
+  
   displaySettings();
 
-  //sets the style of oled text
+  
   OledText();
 }
-
+//Does just about everything for GPS prints/time and display outputs
 void displayInfo()
 {
   float lat, lon, alt;
