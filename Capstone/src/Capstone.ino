@@ -63,8 +63,6 @@ void setup()
   startFix = millis();
   gettingFix = true;
 
-
-
   //PinMode setup for water sensor
   pinMode(waterSensor, INPUT);
 
@@ -84,7 +82,7 @@ void setup()
 // loop() runs over and over again, as quickly as it can execute.
 void loop()
 {
-//turns on gps printouts
+  //turns on gps printouts
   while (Serial1.available() > 0)
   {
     if (gps.encode(Serial1.read()))
@@ -98,15 +96,13 @@ void loop()
   waterSensorValue = analogRead(waterSensor);
   Serial.printf("Value is %d \n", waterSensor);
 
-  
   airQualitySensor();
 
-  
   displaySettings();
 
-  
   OledText();
 }
+
 //Does just about everything for GPS prints/time and display outputs
 void displayInfo()
 {
