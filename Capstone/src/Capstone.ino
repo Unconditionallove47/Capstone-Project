@@ -56,6 +56,13 @@ void setup()
 
   Serial.begin(9600);
 
+  // The GPS module initialization
+  Serial1.begin(9600);
+  startFix = millis();
+  gettingFix = true;
+
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+
   //PinMode setup for water sensor
   pinMode(waterSensor, INPUT);
 
@@ -76,6 +83,15 @@ void setup()
 void loop()
 {
 
+  while (Serial1.available() > 0)
+  {
+    if (gps.encode(Serial1.read()))
+    {
+      displayInfo();
+    }
+  }
+  delay(1000);
+
   //Reading WaterSensor
   val = analogRead(waterSensor);
   Serial.printf("Value is %d \n", waterSensor);
@@ -88,6 +104,60 @@ void loop()
 
   //sets the style of oled text
   OledText();
+}
+
+void displayInfo()
+{
+  float lat, lon, alt;
+  uint8_t hr, mn, se, sat;
+  if (millis() - lastSerial >= SERIAL_PERIOD)
+  {
+    lastSerial = millis();
+
+    char buf[128];
+    if (gps.location.isValid() && gps.location.age() < MAX_GPS_AGE_MS)
+    {
+      lat = gps.location.lat();
+      lon = gps.location.lng();
+      alt = gps.altitude.meters();
+      hr = gps.time.hour();
+      mn = gps.time.minute();
+      se = gps.time.second();
+      sat = gps.satellites.value();
+
+      if (hr > 7)
+      {
+        hr = hr + UTC_offset;
+      }
+      else
+      {
+        hr = hr + 24 + UTC_offset;
+      }
+      Serial.printf("Time: %02i:%02i:%02i --- ", hr, mn, se);
+      Serial.printf("lat: %f, long: %f, alt: %f \n", lat, lon, alt);
+      if (gettingFix)
+      {
+        gettingFix = false;
+        unsigned long elapsed = millis() - startFix;
+        Serial.printlnf("%lu milliseconds to get GPS fix", elapsed);
+      }
+      display.clearDisplay();
+      display.setCursor(0, 0);
+      display.printf("Time: %02i:%02i:%02i \n", hr, mn, se);
+      display.printf("lat  %f \nlong %f \nalt %f\n", lat, lon, alt);
+      display.printf("satelites %i", sat);
+      display.display();
+    }
+    else
+    {
+      strcpy(buf, "no location");
+      if (!gettingFix)
+      {
+        gettingFix = true;
+        startFix = millis();
+      }
+    }
+  }
 }
 
 //function to write text to oled
