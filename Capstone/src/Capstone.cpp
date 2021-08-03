@@ -1,3 +1,8 @@
+/******************************************************/
+//       THIS IS A GENERATED FILE - DO NOT EDIT       //
+/******************************************************/
+
+#line 1 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
 /*
  * Project Capstone
  * Description:Smart Restroom
@@ -10,33 +15,41 @@
 //Library setup for particle and GPS
 #include "Particle.h"
 #include "TinyGPS++.h"
+void setup();
+void loop();
+void displaySettings();
+void OledText(void);
+void airQualitySensor();
+#line 13 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
 const unsigned long PUBLISH_PERIOD = 120000;
 const unsigned long SERIAL_PERIOD = 5000;
-const unsigned long MAX_GPS_AGE_MS = 10000;
+const unsigned long MAX_GPS_AGE_MS = 10000; 
 
 TinyGPSPlus gps;
 //Setting offset to PST
-const int UTC_offset = -7;
+const int UTC_offset = -7; 
 unsigned long lastSerial = 0;
 unsigned long lastPublish = 0;
 unsigned long startFix = 0;
 bool gettingFix = false;
 //Longitude,Latitude,Altitude
-float lat, lon, alt;
+float lat,lon,alt;
+
+
 
 //rotation setting for oled, and its defines,library's, etc
-int rot = 0;
+  int rot = 0;
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
-#define OLED_RESET 4        // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
-Adafruit_SSD1306 display(OLED_RESET);
-#define NUMFLAKES 10 // Number of snowflakes in the animation example
-#define LOGO_HEIGHT 1
-#define LOGO_WIDTH 1
-#define XPOS 0 // Indexes into the 'icons' array in function below
-#define YPOS 1
-#define DELTAY 2
+#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
+ #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+ Adafruit_SSD1306 display(OLED_RESET);
+ #define NUMFLAKES     10 // Number of snowflakes in the animation example
+ #define LOGO_HEIGHT   1
+ #define LOGO_WIDTH    1
+ #define XPOS   0 // Indexes into the 'icons' array in function below
+ #define YPOS   1
+ #define DELTAY 2
 
 //AirQuality Sensor and setup and library
 #include "Air_Quality_Sensor.h"
@@ -45,10 +58,10 @@ AirQualitySensor sensor(A2);
 Servo myServo;
 
 //Water Sensor Setup
-int waterSensor = A0;
+int Sensor = A0;
 int val = 0;
 
-// myServo.attach(A3);
+// myServo.attach(A3);   
 
 // setup() runs once, when the device is first turned on.
 void setup()
@@ -56,8 +69,10 @@ void setup()
 
   Serial.begin(9600);
 
-  //PinMode setup for water sensor
-  pinMode(waterSensor, INPUT);
+
+//PinMode setup for water sensor
+pinMode(Sensor,INPUT);
+
 
   //air quality sensor serial monitor test settings
   Serial.println("Waiting sensor to init...");
@@ -76,42 +91,50 @@ void setup()
 void loop()
 {
 
-  //Reading WaterSensor
-  val = analogRead(waterSensor);
-  Serial.printf("Value is %d \n", waterSensor);
+
+//Reading WaterSensor
+   val=analogRead(Sensor);
+  Serial.printf("Value is %d \n",Sensor);
+
 
   //tests the current air quality
   airQualitySensor();
 
-  //sets evrything for oled to work
-  displaySettings();
+//sets evrything for oled to work
+displaySettings();
 
-  //sets the style of oled text
-  OledText();
+//sets the style of oled text
+OledText();
+
+
+
 }
 
+
 //function to write text to oled
-void displaySettings()
-{
+ void displaySettings(){
   display.clearDisplay();
-  display.setCursor(0, 0);
-  display.setTextColor(WHITE, BLACK); // Draw 'inverse' text
+  display.setCursor(0,0);
+  display.setTextColor(WHITE,BLACK); // Draw 'inverse' text
   display.setTextSize(1);
   display.setRotation(rot);
   display.printf("Airquality is %i\n", sensor.getValue());
   display.display();
-}
+  }
 
-//function for text style setup for oled
-void OledText(void)
-{
+
+//function for text style setup for oled 
+  void OledText(void) {
   display.clearDisplay();
-  display.setTextSize(1);      // Normal 1:1 pixel scale
-  display.setTextColor(WHITE); // Draw white text
+  display.setTextSize(1);             // Normal 1:1 pixel scale
+  display.setTextColor(WHITE);        // Draw white text
   display.setTextSize(1.5);
-  display.setCursor(0, 0); // Start at top-left corner
+  display.setCursor(0, 0);            // Start at top-left corner
   display.display();
-}
+  }
+
+
+
 
 //Function for Air Quality Sensor
 void airQualitySensor()
