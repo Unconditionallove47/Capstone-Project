@@ -5,7 +5,7 @@
  * Date:July 30th, 2021
  */
 
-#include "credentials.h"
+//#include "credentials.h"
 
 //Library setup for particle and GPS
 #include "Particle.h"
@@ -45,6 +45,7 @@ int waterSensorValue = 0;
 // myServo.attach(A3);
 
 // setup() runs once, when the device is first turned on.
+
 void setup()
 {
 

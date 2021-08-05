@@ -2,7 +2,7 @@
 //       THIS IS A GENERATED FILE - DO NOT EDIT       //
 /******************************************************/
 
-#line 1 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
+#line 1 "c:/Users/IoT_Instructor/Documents/IoT/Cohort5/kalif/Capstone-Project/Capstone/src/Capstone.ino"
 /*
  * Project Capstone
  * Description:Smart Restroom
@@ -10,7 +10,7 @@
  * Date:July 30th, 2021
  */
 
-#include "credentials.h"
+//#include "credentials.h"
 
 //Library setup for particle and GPS
 #include "Particle.h"
@@ -20,7 +20,7 @@ void loop();
 void displayInfo();
 void airQualitySensor();
 void helloWorld();
-#line 13 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
+#line 13 "c:/Users/IoT_Instructor/Documents/IoT/Cohort5/kalif/Capstone-Project/Capstone/src/Capstone.ino"
 const unsigned long PUBLISH_PERIOD = 120000;
 const unsigned long SERIAL_PERIOD = 5000;
 const unsigned long MAX_GPS_AGE_MS = 10000;
@@ -56,6 +56,7 @@ int waterSensorValue = 0;
 // myServo.attach(A3);
 
 // setup() runs once, when the device is first turned on.
+
 void setup()
 {
 
