@@ -101,7 +101,7 @@ void loop()
 
   //Reading WaterSensor
   waterSensorValue = analogRead(waterSensor);
-  Serial.printf("Value is %d \n", waterSensor);
+  Serial.printf("Water Value is %d \n", waterSensor);
 
   airQualitySensor();
 
@@ -182,7 +182,7 @@ void airQualitySensor()
 {
   int quality = sensor.slope();
 
-  Serial.print("Sensor value: ");
+  Serial.print("Air Quality value: ");
   Serial.println(sensor.getValue());
 
   if (quality == AirQualitySensor::FORCE_SIGNAL)
