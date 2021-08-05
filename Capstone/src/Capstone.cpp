@@ -18,9 +18,8 @@
 void setup();
 void loop();
 void displayInfo();
-void displaySettings();
-void OledText(void);
 void airQualitySensor();
+void helloWorld();
 #line 13 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
 const unsigned long PUBLISH_PERIOD = 120000;
 const unsigned long SERIAL_PERIOD = 5000;
@@ -28,7 +27,7 @@ const unsigned long MAX_GPS_AGE_MS = 10000;
 
 TinyGPSPlus gps;
 //Setting offset to PST
-const int UTC_offset = -7;
+const int UTC_offset = -6;
 unsigned long lastSerial = 0;
 unsigned long lastPublish = 0;
 unsigned long startFix = 0;
@@ -43,12 +42,6 @@ int rot = 0;
 #define OLED_RESET 4        // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(OLED_RESET);
-#define NUMFLAKES 10 // Number of snowflakes in the animation example
-#define LOGO_HEIGHT 1
-#define LOGO_WIDTH 1
-#define XPOS 0 // Indexes into the 'icons' array in function below
-#define YPOS 1
-#define DELTAY 2
 
 //AirQuality Sensor and setup and library
 #include "Air_Quality_Sensor.h"
@@ -58,7 +51,7 @@ Servo myServo;
 
 //Water Sensor Setup
 int waterSensor = A0;
-int val = 0;
+int waterSensorValue = 0;
 
 // myServo.attach(A3);
 
@@ -67,18 +60,17 @@ void setup()
 {
 
   Serial.begin(9600);
+  
 
   // The GPS module initialization
   Serial1.begin(9600);
   startFix = millis();
   gettingFix = true;
 
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-
-  //PinMode setup for water sensor
+  // //PinMode setup for water sensor
   pinMode(waterSensor, INPUT);
 
-  //air quality sensor serial monitor test settings
+  // air quality sensor serial monitor test settings
   Serial.println("Waiting sensor to init...");
   delay(1000);
 
@@ -90,34 +82,34 @@ void setup()
   {
     Serial.println("Sensor ERROR!");
   }
+//Oled display turned on
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  // OledText();
+  helloWorld();
+  Serial.printf("Hello World\n");
 }
 // loop() runs over and over again, as quickly as it can execute.
 void loop()
 {
-
-  while (Serial1.available() > 0)
-  {
-    if (gps.encode(Serial1.read()))
-    {
+  //turns on gps printouts
+  while (Serial1.available() > 0) {
+    if (gps.encode(Serial1.read())) {
       displayInfo();
     }
   }
   delay(1000);
 
   //Reading WaterSensor
-  val = analogRead(waterSensor);
+  waterSensorValue = analogRead(waterSensor);
   Serial.printf("Value is %d \n", waterSensor);
 
-  //tests the current air quality
   airQualitySensor();
 
-  //sets evrything for oled to work
-  displaySettings();
 
-  //sets the style of oled text
-  OledText();
+  
 }
 
+//Does just about everything for GPS prints/time and display outputs
 void displayInfo()
 {
   float lat, lon, alt;
@@ -172,28 +164,18 @@ void displayInfo()
   }
 }
 
-//function to write text to oled
-void displaySettings()
-{
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.setTextColor(WHITE, BLACK); // Draw 'inverse' text
-  display.setTextSize(1);
-  display.setRotation(rot);
-  display.printf("Airquality is %i\n", sensor.getValue());
-  display.display();
-}
 
 //function for text style setup for oled
-void OledText(void)
-{
-  display.clearDisplay();
-  display.setTextSize(1);      // Normal 1:1 pixel scale
-  display.setTextColor(WHITE); // Draw white text
-  display.setTextSize(1.5);
-  display.setCursor(0, 0); // Start at top-left corner
-  display.display();
-}
+// void OledText(void)
+// {
+//   display.clearDisplay();
+//   display.setTextSize(1);      // Normal 1:1 pixel scale
+//   display.setTextColor(WHITE); // Draw white text
+//   display.setTextSize(1);
+//   display.setCursor(20, 5); // Start at top-left corner
+//   display.println("GPS Initializing");
+//   display.display();
+// }
 
 //Function for Air Quality Sensor
 void airQualitySensor()
@@ -221,4 +203,13 @@ void airQualitySensor()
   }
 
   delay(1000);
+}
+
+void helloWorld() {
+	display.clearDisplay();
+	display.setTextSize(1);
+  	display.setTextColor(WHITE);
+  	display.setCursor(20,5);
+  	display.println("GPS Initializing");
+	display.display();
 }
