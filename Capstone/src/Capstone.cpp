@@ -50,11 +50,11 @@ AirQualitySensor sensor(A2);
 Servo myServo;
 
 //Water Sensor Setup
-int waterSensorToilet = A0;
-int waterSensorTValue = 0;
+const int waterSensorToilet = A0;
+ int waterSensorTValue;
 
-int waterSensorSink = A1;
-int waterSensorSValue = 0;
+const int waterSensorSink = A1;
+int waterSensorSValue;
 
 // myServo.attach(A3);
 
@@ -76,7 +76,7 @@ void setup()
   pinMode(waterSensorSink, INPUT);
   // air quality sensor serial monitor test settings
   Serial.println("Waiting sensor to init...");
-  // delay(1000);
+   delay(1000);
 
   if (sensor.init())
   {
@@ -105,10 +105,10 @@ void loop()
 
   //Reading WaterSensor
   waterSensorTValue = analogRead(waterSensorToilet);
-  Serial.printf("Behind Toilet Water Value is %d \n", waterSensorToilet);
+  Serial.printf("Behind Toilet Water Value is %d \n", waterSensorTValue);
 
   waterSensorSValue = analogRead(waterSensorSink);
-  Serial.printf("Sink Water Value is %d \n", waterSensorSink);
+  Serial.printf("Sink Water Value is %d \n", waterSensorSValue);
 
   airQualitySensor();
 
@@ -171,18 +171,6 @@ void displayInfo()
   }
 }
 
-
-//function for text style setup for oled
-// void OledText(void)
-// {
-//   display.clearDisplay();
-//   display.setTextSize(1);      // Normal 1:1 pixel scale
-//   display.setTextColor(WHITE); // Draw white text
-//   display.setTextSize(1);
-//   display.setCursor(20, 5); // Start at top-left corner
-//   display.println("GPS Initializing");
-//   display.display();
-// }
 
 //Function for Air Quality Sensor
 void airQualitySensor()

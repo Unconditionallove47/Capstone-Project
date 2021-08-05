@@ -13,7 +13,6 @@
 
 void setup();
 void loop();
-#line 8 "c:/Users/IoT_Instructor/Documents/IoT/Cohort5/kalif/Capstone-Project/Capstone/LeakTest/src/LeakTest.ino"
 const int leakPin = A0;
 int leakValue;
 
