@@ -32,9 +32,6 @@ int rot = 0;
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(OLED_RESET);
 
-//AirQuality Sensor and setup and library
-#include "Air_Quality_Sensor.h"
-AirQualitySensor sensor(A2);
 
 Servo myServo;
 
@@ -45,6 +42,11 @@ const int waterSensorToilet = A0;
 const int waterSensorSink = A1;
 int waterSensorSValue;
 
+const int occupantSensor=A2;
+int occupantSensorValue;
+
+int servoPosition=0;
+
 // myServo.attach(A3);
 
 // setup() runs once, when the device is first turned on.
@@ -54,6 +56,8 @@ void setup()
 
   Serial.begin(9600);
   
+myServo.attach(A4);
+
 
   // The GPS module initialization
   Serial1.begin(9600);
@@ -63,18 +67,8 @@ void setup()
   // //PinMode setup for water sensor
   pinMode(waterSensorToilet, INPUT);
   pinMode(waterSensorSink, INPUT);
-  // air quality sensor serial monitor test settings
-  Serial.println("Waiting sensor to init...");
-   delay(1000);
 
-  if (sensor.init())
-  {
-    Serial.println("Sensor ready.");
-  }
-  else
-  {
-    Serial.println("Sensor ERROR!");
-  }
+
 //Oled display turned on
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   // OledText();
@@ -99,10 +93,18 @@ void loop()
   waterSensorSValue = analogRead(waterSensorSink);
   Serial.printf("Sink Water Value is %d \n", waterSensorSValue);
 
-  airQualitySensor();
+   occupantSensorValue = analogRead(occupantSensor);
+   Serial.printf("Occupancy value is %d \n",occupantSensorValue);
 
+for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees 
+  {                                  // in steps of 1 degree 
+    myServo.write(servoPosition);              // tell servo to go to position in variable 'pos' 
+  } 
+  for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees 
+  {                                
+    myServo.write(servoPosition);              // tell servo to go to position in variable 'pos' 
+  } 
 
-  
 }
 
 //Does just about everything for GPS prints/time and display outputs
@@ -160,34 +162,6 @@ void displayInfo()
   }
 }
 
-
-//Function for Air Quality Sensor
-void airQualitySensor()
-{
-  int quality = sensor.slope();
-
-  Serial.print("Air Quality value: ");
-  Serial.println(sensor.getValue());
-
-  if (quality == AirQualitySensor::FORCE_SIGNAL)
-  {
-    Serial.println("High pollution! Force signal active.");
-  }
-  else if (quality == AirQualitySensor::HIGH_POLLUTION)
-  {
-    Serial.println("High pollution!");
-  }
-  else if (quality == AirQualitySensor::LOW_POLLUTION)
-  {
-    Serial.println("Low pollution!");
-  }
-  else if (quality == AirQualitySensor::FRESH_AIR)
-  {
-    Serial.println("Fresh air.");
-  }
-
- delay(1000);
-}
 
 void helloWorld() {
 	display.clearDisplay();
