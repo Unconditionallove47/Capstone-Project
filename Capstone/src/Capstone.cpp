@@ -109,10 +109,12 @@ void loop()
 for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees 
   {                                  // in steps of 1 degree 
     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos' 
+    delay(5);
   } 
   for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees 
   {                                
     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos' 
+    delay(5);
   } 
 
 }
