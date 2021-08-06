@@ -56,7 +56,7 @@ void setup()
 
   Serial.begin(9600);
   
-myServo.attach(A4);
+myServo.attach(D5);
 
 
   // The GPS module initialization
