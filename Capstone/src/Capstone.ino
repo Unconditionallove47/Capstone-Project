@@ -8,12 +8,10 @@
 #include "credentials.h"
 #include <JsonParserGeneratorRK.h>
 
-
 //Dashboard library setup
 #include <Adafruit_MQTT.h>
-#include "Adafruit_MQTT/Adafruit_MQTT.h" 
-#include "Adafruit_MQTT/Adafruit_MQTT_SPARK.h" 
-
+#include "Adafruit_MQTT/Adafruit_MQTT.h"
+#include "Adafruit_MQTT/Adafruit_MQTT_SPARK.h"
 
 //Library setup for particle and GPS
 #include "Particle.h"
@@ -21,7 +19,6 @@
 const unsigned long PUBLISH_PERIOD = 120000;
 const unsigned long SERIAL_PERIOD = 5000;
 const unsigned long MAX_GPS_AGE_MS = 10000;
-
 TinyGPSPlus gps;
 //Setting offset to PST
 const int UTC_offset = -6;
@@ -60,31 +57,31 @@ int airQualitySensorValue;
 //Setting Servo Position
 int servoPosition = 0;
 
-
 //adafruit.io settings for publish and sub
-TCPClient TheClient; 
-Adafruit_MQTT_SPARK mqtt(&TheClient,AIO_SERVER,AIO_SERVERPORT,AIO_USERNAME,AIO_KEY); 
+TCPClient TheClient;
+Adafruit_MQTT_SPARK mqtt(&TheClient, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 Adafruit_MQTT_Publish GPSObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/GPS");
 Adafruit_MQTT_Publish ToiletSensorObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/toiletsensor");
 Adafruit_MQTT_Publish SinkSensorObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/sinksensor");
 Adafruit_MQTT_Publish AirQualityObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/air-quality");
 Adafruit_MQTT_Publish OccupancyObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/occupancy");
 unsigned long last, lastTime;
-unsigned long timeStamp;    //Timestamp for current time
+unsigned long timeStamp; //Timestamp for current time
 unsigned long lastStamp;
+
 //oled and adafruit live time
-String DateTime , TimeOnly ;
-float gpsValue,sinkSensorValue,toiletSensorValue,airQualityValue,OccupancyValue;
-
-
-
+String DateTime, TimeOnly;
+float gpsValue, sinkSensorValue, toiletSensorValue, airQualityValue, OccupancyValue;
 
 void setup()
+
 {
 
   Serial.begin(9600);
 
   myServo.attach(D5);
+
+  pinMode(D6, OUTPUT);
 
   // The GPS module initialization
   Serial1.begin(9600);
@@ -100,15 +97,15 @@ void setup()
   helloWorld();
   Serial.printf("Hello World\n");
 }
-// loop() runs over and over again, as quickly as it can execute.
+
 void loop()
+
 {
 
-MQTT_connect();
-  timeStamp = millis();     // TIMESTAMP TO MILLISECONDS
-  DateTime = Time . timeStr () ; // Current Date and Time from Particle Time class
-  TimeOnly = DateTime . substring (11 ,19) ;
-
+  MQTT_connect();
+  timeStamp = millis();      // TIMESTAMP TO MILLISECONDS
+  DateTime = Time.timeStr(); // Current Date and Time from Particle Time class
+  TimeOnly = DateTime.substring(11, 19);
 
   //turns on gps printouts
   while (Serial1.available() > 0)
@@ -120,19 +117,14 @@ MQTT_connect();
   }
   delay(1000);
 
-  //Reading WaterSensor Value
-  waterSensorTValue = analogRead(waterSensorToilet);
-  Serial.printf("Behind Toilet Water Value is %d \n", waterSensorTValue);
-  //Reading WaterSensor Value
-  waterSensorSValue = analogRead(waterSensorSink);
-  Serial.printf("Sink Water Value is %d \n", waterSensorSValue);
-  //Reading AirQuality
-  airQualitySensorValue = analogRead(airQualitySensor);
-  Serial.printf("air Quality is %d \n", airQualitySensorValue);
 
-  //Reading Occupancy Value
-  occupantSensorValue = analogRead(occupantSensor);
-  Serial.printf("Occupancy value is %d \n", occupantSensorValue);
+
+  analogReads();
+
+  // digitalWrite(D6, HIGH); // sets the digital pin D6 on
+  // delay(1000);            // waits for a second
+  // digitalWrite(D6, LOW);  // sets the digital pin D6 off
+  // delay(1000);            // waits for a second
 
   // for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees
   //   {                                  // in steps of 1 degree
@@ -145,36 +137,36 @@ MQTT_connect();
   //     delay(5);
   //   }
 
-//MQTT ping to make sure it still works
-  if ((millis()-last)>120000) {
-      Serial.printf("Pinging MQTT \n");
-    if(! mqtt.ping()) {
+  //MQTT ping to make sure it still works
+  if ((millis() - last) > 120000)
+  {
+    Serial.printf("Pinging MQTT \n");
+    if (!mqtt.ping())
+    {
       Serial.printf("Disconnecting \n");
       mqtt.disconnect();
     }
-  last = millis();
+    last = millis();
   }
 
- // publish to cloud every 30 seconds
- 
-  toiletSensorValue=(analogRead(A0));
-  sinkSensorValue=(analogRead(A1));
-  occupantSensorValue=(analogRead(A2));
-  airQualityValue=(analogRead(A3));
-  if((millis()-lastTime > 15000)) {
-    if(mqtt.Update()) {
-     createEventPayLoad();
+  // publish to cloud every 30 seconds
+
+  toiletSensorValue = (analogRead(A0));
+  sinkSensorValue = (analogRead(A1));
+  occupantSensorValue = (analogRead(A2));
+  airQualityValue = (analogRead(A3));
+  if ((millis() - lastTime > 15000))
+  {
+    if (mqtt.Update())
+    {
+      createEventPayLoad();
       ToiletSensorObject.publish(toiletSensorValue);
       SinkSensorObject.publish(sinkSensorValue);
       AirQualityObject.publish(airQualityValue);
       OccupancyObject.publish(occupantSensorValue);
-    } 
+    }
     lastTime = millis();
   }
-
-
-
-
 }
 
 //Does just about everything for GPS prints/time and display outputs
@@ -242,32 +234,51 @@ void helloWorld()
   display.display();
 }
 
-
 //connects MQTT automatically using function
-void MQTT_connect() {
+void MQTT_connect()
+{
   int8_t ret;
   // Stop if already connected.
-  if (mqtt.connected()) {
+  if (mqtt.connected())
+  {
     return;
-   }
+  }
   Serial.print("Connecting to MQTT... ");
-     while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
-      Serial.printf("%s\n",(char *)mqtt.connectErrorString(ret));
-      Serial.printf("Retrying MQTT connection in 5 seconds..\n");
-      mqtt.disconnect();
-      delay(5000);  // wait 5 seconds
-     }
+  while ((ret = mqtt.connect()) != 0)
+  { // connect will return 0 for connected
+    Serial.printf("%s\n", (char *)mqtt.connectErrorString(ret));
+    Serial.printf("Retrying MQTT connection in 5 seconds..\n");
+    mqtt.disconnect();
+    delay(5000); // wait 5 seconds
+  }
   Serial.printf("MQTT Connected!\n");
-} 
+}
 
+void createEventPayLoad()
+{
+  JsonWriterStatic<256> jw;
+  {
+    JsonWriterAutoObject obj(&jw);
 
-void createEventPayLoad ()  {
-   JsonWriterStatic <256 >jw;
-    {
- JsonWriterAutoObject obj (&jw);
+    jw.insertKeyValue("lat", gps.location.lat());
+    jw.insertKeyValue("lon", gps.location.lng());
+  }
+  GPSObject.publish(jw.getBuffer());
+}
+//Analog Readouts for water sensors,occupancy sensor, and Air Quality Sensor
+void analogReads()
+{
+  //Reading WaterSensor Value
+  waterSensorTValue = analogRead(waterSensorToilet);
+  Serial.printf("Behind Toilet Water Value is %d \n", waterSensorTValue);
+  //Reading WaterSensor Value
+  waterSensorSValue = analogRead(waterSensorSink);
+  Serial.printf("Sink Water Value is %d \n", waterSensorSValue);
+  //Reading AirQuality
+  airQualitySensorValue = analogRead(airQualitySensor);
+  Serial.printf("air Quality is %d \n", airQualitySensorValue);
+  //Reading Occupancy Value
+  occupantSensorValue = analogRead(occupantSensor);
+  Serial.printf("Occupancy value is %d \n", occupantSensorValue);
 
- jw.insertKeyValue ("lat",gps.location.lat());
- jw.insertKeyValue ("lon", gps.location.lng());
- }
- GPSObject.publish(jw.getBuffer());
 }
