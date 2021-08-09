@@ -77,12 +77,15 @@ int servoPosition = 0;
 TCPClient TheClient; 
 Adafruit_MQTT_SPARK mqtt(&TheClient,AIO_SERVER,AIO_SERVERPORT,AIO_USERNAME,AIO_KEY); 
 Adafruit_MQTT_Publish GPSObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/GPS");
+Adafruit_MQTT_Publish ToiletSensorObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/toiletsensor");
+Adafruit_MQTT_Publish SinkSensorObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/sinksensor");
+Adafruit_MQTT_Publish AirQualityObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/air-quality");
 unsigned long last, lastTime;
 unsigned long timeStamp;    //Timestamp for current time
 unsigned long lastStamp;
 //oled and adafruit live time
 String DateTime , TimeOnly ;
-float gpsValue;
+float gpsValue,sinkSensorValue,toiletSensorValue,airQualityValue;
 
 
 
@@ -165,11 +168,15 @@ MQTT_connect();
 
  // publish to cloud every 30 seconds
  
-  
+  toiletSensorValue=(analogRead(A0));
+  sinkSensorValue=(analogRead(A1));
+  airQualitySensorValue=(analogRead(A3));
   if((millis()-lastTime > 15000)) {
     if(mqtt.Update()) {
      createEventPayLoad();
-      
+      ToiletSensorObject.publish(toiletSensorValue);
+      SinkSensorObject.publish(sinkSensorValue);
+      AirQualityObject.publish(airQualityValue);
     } 
     lastTime = millis();
   }
@@ -266,11 +273,10 @@ void MQTT_connect() {
 void createEventPayLoad ()  {
    JsonWriterStatic <256 >jw;
     {
- JsonWriterAutoObject obj (& jw );
+ JsonWriterAutoObject obj (&jw);
 
- jw.insertKeyValue (" longitude ",gps.location.lat());
- jw.insertKeyValue (" latitude ", lon = gps.location.lng());
- jw.insertKeyValue (" altitude ", alt = gps.altitude.meters());
+ jw.insertKeyValue ("lat",gps.location.lat());
+ jw.insertKeyValue ("lon", gps.location.lng());
  }
  GPSObject.publish(jw.getBuffer());
 }
