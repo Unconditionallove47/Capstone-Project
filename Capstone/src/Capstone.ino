@@ -121,22 +121,14 @@ void loop()
 
   analogReads();
 
+//  servoMotor();
+
   // digitalWrite(D6, HIGH); // sets the digital pin D6 on
   // delay(1000);            // waits for a second
   // digitalWrite(D6, LOW);  // sets the digital pin D6 off
   // delay(1000);            // waits for a second
 
-  // for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees
-  //   {                                  // in steps of 1 degree
-  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
-  //     delay(5);
-  //   }
-  //   for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees
-  //   {
-  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
-  //     delay(5);
-  //   }
-
+  
   //MQTT ping to make sure it still works
   if ((millis() - last) > 120000)
   {
@@ -168,6 +160,9 @@ void loop()
     lastTime = millis();
   }
 }
+
+
+
 
 //Does just about everything for GPS prints/time and display outputs
 void displayInfo()
@@ -287,5 +282,21 @@ void analogReads()
   //Reading Occupancy Value
   occupantSensorValue = analogRead(occupantSensor);
   Serial.printf("Occupancy value is %d \n", occupantSensorValue);
+
+}
+
+
+void servoMotor()
+{
+// for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees
+  //   {                                  // in steps of 1 degree
+  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
+  //     delay(5);
+  //   }
+  //   for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees
+  //   {
+  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
+  //     delay(5);
+  //   }
 
 }
