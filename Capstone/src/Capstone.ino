@@ -224,6 +224,8 @@ void displayInfo()
   }
 }
 
+
+//GPS initialization for GPS
 void helloWorld()
 {
   display.clearDisplay();
@@ -233,6 +235,7 @@ void helloWorld()
   display.println("GPS Initializing");
   display.display();
 }
+
 
 //connects MQTT automatically using function
 void MQTT_connect()
@@ -254,6 +257,7 @@ void MQTT_connect()
   Serial.printf("MQTT Connected!\n");
 }
 
+//JSON for gps on dashboard
 void createEventPayLoad()
 {
   JsonWriterStatic<256> jw;
@@ -265,6 +269,9 @@ void createEventPayLoad()
   }
   GPSObject.publish(jw.getBuffer());
 }
+
+
+
 //Analog Readouts for water sensors,occupancy sensor, and Air Quality Sensor
 void analogReads()
 {

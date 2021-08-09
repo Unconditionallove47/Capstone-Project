@@ -27,6 +27,7 @@ void displayInfo();
 void helloWorld();
 void MQTT_connect();
 void createEventPayLoad();
+void analogReads();
 #line 19 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
 const unsigned long PUBLISH_PERIOD = 120000;
 const unsigned long SERIAL_PERIOD = 5000;
@@ -93,7 +94,7 @@ void setup()
 
   myServo.attach(D5);
 
-  pinMode(D6,OUTPUT);
+  pinMode(D6, OUTPUT);
 
   // The GPS module initialization
   Serial1.begin(9600);
@@ -109,7 +110,6 @@ void setup()
   helloWorld();
   Serial.printf("Hello World\n");
 }
-
 
 void loop()
 
@@ -131,24 +131,13 @@ void loop()
   delay(1000);
 
 
-  //Reading WaterSensor Value
-  waterSensorTValue = analogRead(waterSensorToilet);
-  Serial.printf("Behind Toilet Water Value is %d \n", waterSensorTValue);
-  //Reading WaterSensor Value
-  waterSensorSValue = analogRead(waterSensorSink);
-  Serial.printf("Sink Water Value is %d \n", waterSensorSValue);
-  //Reading AirQuality
-  airQualitySensorValue = analogRead(airQualitySensor);
-  Serial.printf("air Quality is %d \n", airQualitySensorValue);
-  //Reading Occupancy Value
-  occupantSensorValue = analogRead(occupantSensor);
-  Serial.printf("Occupancy value is %d \n", occupantSensorValue);
 
-digitalWrite(D6, HIGH); // sets the digital pin 13 on
-  delay(1000);            // waits for a second
-  digitalWrite(D6, LOW);  // sets the digital pin 13 off
-  delay(1000);            // waits for a second
+  analogReads();
 
+  // digitalWrite(D6, HIGH); // sets the digital pin D6 on
+  // delay(1000);            // waits for a second
+  // digitalWrite(D6, LOW);  // sets the digital pin D6 off
+  // delay(1000);            // waits for a second
 
   // for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees
   //   {                                  // in steps of 1 degree
@@ -288,4 +277,21 @@ void createEventPayLoad()
     jw.insertKeyValue("lon", gps.location.lng());
   }
   GPSObject.publish(jw.getBuffer());
+}
+//Analog Readouts for water sensors,occupancy sensor, and Air Quality Sensor
+void analogReads()
+{
+  //Reading WaterSensor Value
+  waterSensorTValue = analogRead(waterSensorToilet);
+  Serial.printf("Behind Toilet Water Value is %d \n", waterSensorTValue);
+  //Reading WaterSensor Value
+  waterSensorSValue = analogRead(waterSensorSink);
+  Serial.printf("Sink Water Value is %d \n", waterSensorSValue);
+  //Reading AirQuality
+  airQualitySensorValue = analogRead(airQualitySensor);
+  Serial.printf("air Quality is %d \n", airQualitySensorValue);
+  //Reading Occupancy Value
+  occupantSensorValue = analogRead(occupantSensor);
+  Serial.printf("Occupancy value is %d \n", occupantSensorValue);
+
 }
