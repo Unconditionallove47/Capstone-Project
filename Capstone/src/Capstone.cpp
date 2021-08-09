@@ -52,9 +52,15 @@ const int waterSensorToilet = A0;
 const int waterSensorSink = A1;
 int waterSensorSValue;
 
+//Occupancy Sensor Setup
 const int occupantSensor=A2;
 int occupantSensorValue;
 
+//Air Quality Sensor Setup
+const int airQualitySensor=A3;
+int airQualitySensorValue;
+
+//Setting Servo Position
 int servoPosition=0;
 
 // myServo.attach(A3);
@@ -96,26 +102,30 @@ void loop()
   }
   delay(1000);
 
-  //Reading WaterSensor
-  waterSensorTValue = analogRead(waterSensorToilet);
-  Serial.printf("Behind Toilet Water Value is %d \n", waterSensorTValue);
-
-  waterSensorSValue = analogRead(waterSensorSink);
-  Serial.printf("Sink Water Value is %d \n", waterSensorSValue);
-
+//Reading Occupancy Value
    occupantSensorValue = analogRead(occupantSensor);
    Serial.printf("Occupancy value is %d \n",occupantSensorValue);
 
-for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees 
-  {                                  // in steps of 1 degree 
-    myServo.write(servoPosition);              // tell servo to go to position in variable 'pos' 
-    delay(5);
-  } 
-  for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees 
-  {                                
-    myServo.write(servoPosition);              // tell servo to go to position in variable 'pos' 
-    delay(5);
-  } 
+  //Reading WaterSensor Value
+  waterSensorTValue = analogRead(waterSensorToilet);
+  Serial.printf("Behind Toilet Water Value is %d \n", waterSensorTValue);
+//Reading WaterSensor Value
+  waterSensorSValue = analogRead(waterSensorSink);
+  Serial.printf("Sink Water Value is %d \n", waterSensorSValue);
+//Reading AirQuality
+   airQualitySensorValue= analogRead(airQualitySensor);
+   Serial.printf("air Quality is %d \n",airQualitySensorValue);
+
+// for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees 
+//   {                                  // in steps of 1 degree 
+//     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos' 
+//     delay(5);
+//   } 
+//   for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees 
+//   {                                
+//     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos' 
+//     delay(5);
+//   } 
 
 }
 
