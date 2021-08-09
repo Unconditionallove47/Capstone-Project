@@ -68,12 +68,13 @@ Adafruit_MQTT_Publish GPSObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/fe
 Adafruit_MQTT_Publish ToiletSensorObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/toiletsensor");
 Adafruit_MQTT_Publish SinkSensorObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/sinksensor");
 Adafruit_MQTT_Publish AirQualityObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/air-quality");
+Adafruit_MQTT_Publish OccupancyObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/occupancy");
 unsigned long last, lastTime;
 unsigned long timeStamp;    //Timestamp for current time
 unsigned long lastStamp;
 //oled and adafruit live time
 String DateTime , TimeOnly ;
-float gpsValue,sinkSensorValue,toiletSensorValue,airQualityValue;
+float gpsValue,sinkSensorValue,toiletSensorValue,airQualityValue,OccupancyValue;
 
 
 
@@ -158,6 +159,7 @@ MQTT_connect();
  
   toiletSensorValue=(analogRead(A0));
   sinkSensorValue=(analogRead(A1));
+  occupantSensorValue=(analogRead(A2));
   airQualityValue=(analogRead(A3));
   if((millis()-lastTime > 15000)) {
     if(mqtt.Update()) {
@@ -165,6 +167,7 @@ MQTT_connect();
       ToiletSensorObject.publish(toiletSensorValue);
       SinkSensorObject.publish(sinkSensorValue);
       AirQualityObject.publish(airQualityValue);
+      OccupancyObject.publish(occupantSensorValue);
     } 
     lastTime = millis();
   }
