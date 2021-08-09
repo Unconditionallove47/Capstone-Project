@@ -40,18 +40,18 @@ Adafruit_SSD1306 display(OLED_RESET);
 Servo myServo;
 
 //Water Sensor Setup
-const int waterSensorToilet = A0;
+const int WATERSENSORTOILET = A0;
 int waterSensorTValue;
 
-const int waterSensorSink = A1;
+const int WATERSENSORSINK = A1;
 int waterSensorSValue;
 
 //Occupancy Sensor Setup
-const int occupantSensor = A2;
+const int OCCUPANTSENSOR = A2;
 int occupantSensorValue;
 
 //Air Quality Sensor Setup
-const int airQualitySensor = A3;
+const int AIRQUALITYSENSOR = A3;
 int airQualitySensorValue;
 
 //Setting Servo Position
@@ -89,8 +89,8 @@ void setup()
   gettingFix = true;
 
   // //PinMode setup for water sensor
-  pinMode(waterSensorToilet, INPUT);
-  pinMode(waterSensorSink, INPUT);
+  pinMode(WATERSENSORTOILET, INPUT);
+  pinMode(WATERSENSORSINK, INPUT);
 
   //Oled display turned on
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -112,7 +112,7 @@ void loop()
   {
     if (gps.encode(Serial1.read()))
     {
-      displayInfo();
+      displayGPSInfo();
     }
   }
   delay(1000);
@@ -129,43 +129,18 @@ void loop()
   // delay(1000);            // waits for a second
 
   
-  //MQTT ping to make sure it still works
-  if ((millis() - last) > 120000)
-  {
-    Serial.printf("Pinging MQTT \n");
-    if (!mqtt.ping())
-    {
-      Serial.printf("Disconnecting \n");
-      mqtt.disconnect();
-    }
-    last = millis();
-  }
+  MQTTPing();
 
-  // publish to cloud every 30 seconds
+  MQTTPublish();
 
-  toiletSensorValue = (analogRead(A0));
-  sinkSensorValue = (analogRead(A1));
-  occupantSensorValue = (analogRead(A2));
-  airQualityValue = (analogRead(A3));
-  if ((millis() - lastTime > 15000))
-  {
-    if (mqtt.Update())
-    {
-      createEventPayLoad();
-      ToiletSensorObject.publish(toiletSensorValue);
-      SinkSensorObject.publish(sinkSensorValue);
-      AirQualityObject.publish(airQualityValue);
-      OccupancyObject.publish(occupantSensorValue);
-    }
-    lastTime = millis();
-  }
+
 }
 
 
 
 
 //Does just about everything for GPS prints/time and display outputs
-void displayInfo()
+void displayGPSInfo()
 {
   float lat, lon, alt;
   uint8_t hr, mn, se, sat;
@@ -271,16 +246,16 @@ void createEventPayLoad()
 void analogReads()
 {
   //Reading WaterSensor Value
-  waterSensorTValue = analogRead(waterSensorToilet);
+  waterSensorTValue = analogRead(WATERSENSORTOILET);
   Serial.printf("Behind Toilet Water Value is %d \n", waterSensorTValue);
   //Reading WaterSensor Value
-  waterSensorSValue = analogRead(waterSensorSink);
+  waterSensorSValue = analogRead(WATERSENSORSINK);
   Serial.printf("Sink Water Value is %d \n", waterSensorSValue);
   //Reading AirQuality
-  airQualitySensorValue = analogRead(airQualitySensor);
+  airQualitySensorValue = analogRead(AIRQUALITYSENSOR);
   Serial.printf("air Quality is %d \n", airQualitySensorValue);
   //Reading Occupancy Value
-  occupantSensorValue = analogRead(occupantSensor);
+  occupantSensorValue = analogRead(OCCUPANTSENSOR);
   Serial.printf("Occupancy value is %d \n", occupantSensorValue);
 
 }
@@ -298,5 +273,49 @@ void servoMotor()
   //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
   //     delay(5);
   //   }
+
+}
+
+
+
+void MQTTPing()
+{
+//MQTT ping to make sure it still works
+  if ((millis() - last) > 120000)
+  {
+    Serial.printf("Pinging MQTT \n");
+    if (!mqtt.ping())
+    {
+      Serial.printf("Disconnecting \n");
+      mqtt.disconnect();
+    }
+    last = millis();
+  }
+
+
+}
+
+
+void MQTTPublish()
+{
+// publish to cloud every 30 seconds
+
+  toiletSensorValue = (analogRead(A0));
+  sinkSensorValue = (analogRead(A1));
+  occupantSensorValue = (analogRead(A2));
+  airQualityValue = (analogRead(A3));
+  if ((millis() - lastTime > 15000))
+  {
+    if (mqtt.Update())
+    {
+      createEventPayLoad();
+      ToiletSensorObject.publish(toiletSensorValue);
+      SinkSensorObject.publish(sinkSensorValue);
+      AirQualityObject.publish(airQualityValue);
+      OccupancyObject.publish(occupantSensorValue);
+    }
+    lastTime = millis();
+  }
+
 
 }

@@ -23,11 +23,13 @@
 #include "TinyGPS++.h"
 void setup();
 void loop();
-void displayInfo();
+void displayGPSInfo();
 void helloWorld();
 void MQTT_connect();
 void createEventPayLoad();
 void analogReads();
+void servoMotor();
+void MQTTPing();
 #line 19 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
 const unsigned long PUBLISH_PERIOD = 120000;
 const unsigned long SERIAL_PERIOD = 5000;
@@ -125,7 +127,7 @@ void loop()
   {
     if (gps.encode(Serial1.read()))
     {
-      displayInfo();
+      displayGPSInfo();
     }
   }
   delay(1000);
@@ -134,33 +136,15 @@ void loop()
 
   analogReads();
 
+//  servoMotor();
+
   // digitalWrite(D6, HIGH); // sets the digital pin D6 on
   // delay(1000);            // waits for a second
   // digitalWrite(D6, LOW);  // sets the digital pin D6 off
   // delay(1000);            // waits for a second
 
-  // for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees
-  //   {                                  // in steps of 1 degree
-  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
-  //     delay(5);
-  //   }
-  //   for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees
-  //   {
-  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
-  //     delay(5);
-  //   }
-
-  //MQTT ping to make sure it still works
-  if ((millis() - last) > 120000)
-  {
-    Serial.printf("Pinging MQTT \n");
-    if (!mqtt.ping())
-    {
-      Serial.printf("Disconnecting \n");
-      mqtt.disconnect();
-    }
-    last = millis();
-  }
+  
+  MQTTPing();
 
   // publish to cloud every 30 seconds
 
@@ -182,8 +166,11 @@ void loop()
   }
 }
 
+
+
+
 //Does just about everything for GPS prints/time and display outputs
-void displayInfo()
+void displayGPSInfo()
 {
   float lat, lon, alt;
   uint8_t hr, mn, se, sat;
@@ -237,6 +224,8 @@ void displayInfo()
   }
 }
 
+
+//GPS initialization for GPS
 void helloWorld()
 {
   display.clearDisplay();
@@ -246,6 +235,7 @@ void helloWorld()
   display.println("GPS Initializing");
   display.display();
 }
+
 
 //connects MQTT automatically using function
 void MQTT_connect()
@@ -267,6 +257,7 @@ void MQTT_connect()
   Serial.printf("MQTT Connected!\n");
 }
 
+//JSON for gps on dashboard
 void createEventPayLoad()
 {
   JsonWriterStatic<256> jw;
@@ -278,6 +269,9 @@ void createEventPayLoad()
   }
   GPSObject.publish(jw.getBuffer());
 }
+
+
+
 //Analog Readouts for water sensors,occupancy sensor, and Air Quality Sensor
 void analogReads()
 {
@@ -293,5 +287,40 @@ void analogReads()
   //Reading Occupancy Value
   occupantSensorValue = analogRead(occupantSensor);
   Serial.printf("Occupancy value is %d \n", occupantSensorValue);
+
+}
+
+
+void servoMotor()
+{
+// for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees
+  //   {                                  // in steps of 1 degree
+  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
+  //     delay(5);
+  //   }
+  //   for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees
+  //   {
+  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
+  //     delay(5);
+  //   }
+
+}
+
+
+
+void MQTTPing()
+{
+//MQTT ping to make sure it still works
+  if ((millis() - last) > 120000)
+  {
+    Serial.printf("Pinging MQTT \n");
+    if (!mqtt.ping())
+    {
+      Serial.printf("Disconnecting \n");
+      mqtt.disconnect();
+    }
+    last = millis();
+  }
+
 
 }
