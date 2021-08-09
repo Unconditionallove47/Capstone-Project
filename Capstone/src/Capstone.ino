@@ -158,7 +158,7 @@ MQTT_connect();
  
   toiletSensorValue=(analogRead(A0));
   sinkSensorValue=(analogRead(A1));
-  airQualitySensorValue=(analogRead(A3));
+  airQualityValue=(analogRead(A3));
   if((millis()-lastTime > 15000)) {
     if(mqtt.Update()) {
      createEventPayLoad();
