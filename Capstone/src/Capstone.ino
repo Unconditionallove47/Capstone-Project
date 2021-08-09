@@ -6,6 +6,8 @@
  */
 
 #include "credentials.h"
+#include <JsonParserGeneratorRK.h>
+
 
 //Dashboard library setup
 #include <Adafruit_MQTT.h>
@@ -150,11 +152,11 @@ MQTT_connect();
   }
 
  // publish to cloud every 30 seconds
- gpsValue =(lat,lon,alt);
+ 
   
   if((millis()-lastTime > 15000)) {
     if(mqtt.Update()) {
-      GPSObject.publish(gpsValue);
+     createEventPayLoad();
       
     } 
     lastTime = millis();
@@ -247,3 +249,16 @@ void MQTT_connect() {
      }
   Serial.printf("MQTT Connected!\n");
 } 
+
+
+void createEventPayLoad ()  {
+   JsonWriterStatic <256 >jw;
+    {
+ JsonWriterAutoObject obj (& jw );
+
+ jw.insertKeyValue (" longitude ",gps.location.lat());
+ jw.insertKeyValue (" latitude ", lon = gps.location.lng());
+ jw.insertKeyValue (" altitude ", alt = gps.altitude.meters());
+ }
+ GPSObject.publish(jw.getBuffer());
+}

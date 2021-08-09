@@ -11,6 +11,8 @@
  */
 
 #include "credentials.h"
+#include <JsonParserGeneratorRK.h>
+
 
 //Dashboard library setup
 #include <Adafruit_MQTT.h>
@@ -26,7 +28,8 @@ void loop();
 void displayInfo();
 void helloWorld();
 void MQTT_connect();
-#line 19 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
+void createEventPayLoad ();
+#line 21 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
 const unsigned long PUBLISH_PERIOD = 120000;
 const unsigned long SERIAL_PERIOD = 5000;
 const unsigned long MAX_GPS_AGE_MS = 10000;
@@ -161,11 +164,11 @@ MQTT_connect();
   }
 
  // publish to cloud every 30 seconds
- gpsValue =(lat,lon,alt);
+ 
   
   if((millis()-lastTime > 15000)) {
     if(mqtt.Update()) {
-      GPSObject.publish(gpsValue);
+     createEventPayLoad();
       
     } 
     lastTime = millis();
@@ -258,3 +261,16 @@ void MQTT_connect() {
      }
   Serial.printf("MQTT Connected!\n");
 } 
+
+
+void createEventPayLoad ()  {
+   JsonWriterStatic <256 >jw;
+    {
+ JsonWriterAutoObject obj (& jw );
+
+ jw.insertKeyValue (" longitude ",gps.location.lat());
+ jw.insertKeyValue (" latitude ", lon = gps.location.lng());
+ jw.insertKeyValue (" altitude ", alt = gps.altitude.meters());
+ }
+ GPSObject.publish(jw.getBuffer());
+}
