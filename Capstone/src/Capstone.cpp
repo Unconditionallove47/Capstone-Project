@@ -10,7 +10,13 @@
  * Date:July 30th, 2021
  */
 
-//#include "credentials.h"
+#include "credentials.h"
+
+//Dashboard library setup
+#include <Adafruit_MQTT.h>
+#include "Adafruit_MQTT/Adafruit_MQTT.h" 
+#include "Adafruit_MQTT/Adafruit_MQTT_SPARK.h" 
+
 
 //Library setup for particle and GPS
 #include "Particle.h"
@@ -19,7 +25,8 @@ void setup();
 void loop();
 void displayInfo();
 void helloWorld();
-#line 13 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
+void MQTT_connect();
+#line 19 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
 const unsigned long PUBLISH_PERIOD = 120000;
 const unsigned long SERIAL_PERIOD = 5000;
 const unsigned long MAX_GPS_AGE_MS = 10000;
@@ -42,38 +49,47 @@ int rot = 0;
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(OLED_RESET);
 
-
 Servo myServo;
 
 //Water Sensor Setup
 const int waterSensorToilet = A0;
- int waterSensorTValue;
+int waterSensorTValue;
 
 const int waterSensorSink = A1;
 int waterSensorSValue;
 
 //Occupancy Sensor Setup
-const int occupantSensor=A2;
+const int occupantSensor = A2;
 int occupantSensorValue;
 
 //Air Quality Sensor Setup
-const int airQualitySensor=A3;
+const int airQualitySensor = A3;
 int airQualitySensorValue;
 
 //Setting Servo Position
-int servoPosition=0;
+int servoPosition = 0;
 
-// myServo.attach(A3);
 
-// setup() runs once, when the device is first turned on.
+//adafruit.io settings for publish and sub
+TCPClient TheClient; 
+Adafruit_MQTT_SPARK mqtt(&TheClient,AIO_SERVER,AIO_SERVERPORT,AIO_USERNAME,AIO_KEY); 
+Adafruit_MQTT_Publish GPSObject = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/GPS");
+unsigned long last, lastTime;
+unsigned long timeStamp;    //Timestamp for current time
+unsigned long lastStamp;
+//oled and adafruit live time
+String DateTime , TimeOnly ;
+float gpsValue;
+
+
+
 
 void setup()
 {
 
   Serial.begin(9600);
-  
-myServo.attach(D5);
 
+  myServo.attach(D5);
 
   // The GPS module initialization
   Serial1.begin(9600);
@@ -84,48 +100,79 @@ myServo.attach(D5);
   pinMode(waterSensorToilet, INPUT);
   pinMode(waterSensorSink, INPUT);
 
-
-//Oled display turned on
+  //Oled display turned on
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  // OledText();
   helloWorld();
   Serial.printf("Hello World\n");
 }
 // loop() runs over and over again, as quickly as it can execute.
 void loop()
 {
+
+MQTT_connect();
+  timeStamp = millis();     // TIMESTAMP TO MILLISECONDS
+  DateTime = Time . timeStr () ; // Current Date and Time from Particle Time class
+  TimeOnly = DateTime . substring (11 ,19) ;
+
+
   //turns on gps printouts
-  while (Serial1.available() > 0) {
-    if (gps.encode(Serial1.read())) {
+  while (Serial1.available() > 0)
+  {
+    if (gps.encode(Serial1.read()))
+    {
       displayInfo();
     }
   }
   delay(1000);
 
-//Reading Occupancy Value
-   occupantSensorValue = analogRead(occupantSensor);
-   Serial.printf("Occupancy value is %d \n",occupantSensorValue);
-
   //Reading WaterSensor Value
   waterSensorTValue = analogRead(waterSensorToilet);
   Serial.printf("Behind Toilet Water Value is %d \n", waterSensorTValue);
-//Reading WaterSensor Value
+  //Reading WaterSensor Value
   waterSensorSValue = analogRead(waterSensorSink);
   Serial.printf("Sink Water Value is %d \n", waterSensorSValue);
-//Reading AirQuality
-   airQualitySensorValue= analogRead(airQualitySensor);
-   Serial.printf("air Quality is %d \n",airQualitySensorValue);
+  //Reading AirQuality
+  airQualitySensorValue = analogRead(airQualitySensor);
+  Serial.printf("air Quality is %d \n", airQualitySensorValue);
 
-// for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees 
-//   {                                  // in steps of 1 degree 
-//     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos' 
-//     delay(5);
-//   } 
-//   for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees 
-//   {                                
-//     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos' 
-//     delay(5);
-//   } 
+  //Reading Occupancy Value
+  occupantSensorValue = analogRead(occupantSensor);
+  Serial.printf("Occupancy value is %d \n", occupantSensorValue);
+
+  // for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees
+  //   {                                  // in steps of 1 degree
+  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
+  //     delay(5);
+  //   }
+  //   for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees
+  //   {
+  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
+  //     delay(5);
+  //   }
+
+//MQTT ping to make sure it still works
+  if ((millis()-last)>120000) {
+      Serial.printf("Pinging MQTT \n");
+    if(! mqtt.ping()) {
+      Serial.printf("Disconnecting \n");
+      mqtt.disconnect();
+    }
+  last = millis();
+  }
+
+ // publish to cloud every 30 seconds
+ gpsValue =(lat,lon,alt);
+  
+  if((millis()-lastTime > 15000)) {
+    if(mqtt.Update()) {
+      GPSObject.publish(gpsValue);
+      
+    } 
+    lastTime = millis();
+  }
+
+
+
 
 }
 
@@ -184,12 +231,30 @@ void displayInfo()
   }
 }
 
-
-void helloWorld() {
-	display.clearDisplay();
-	display.setTextSize(1);
-  	display.setTextColor(WHITE);
-  	display.setCursor(20,5);
-  	display.println("GPS Initializing");
-	display.display();
+void helloWorld()
+{
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(20, 5);
+  display.println("GPS Initializing");
+  display.display();
 }
+
+
+//connects MQTT automatically using function
+void MQTT_connect() {
+  int8_t ret;
+  // Stop if already connected.
+  if (mqtt.connected()) {
+    return;
+   }
+  Serial.print("Connecting to MQTT... ");
+     while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+      Serial.printf("%s\n",(char *)mqtt.connectErrorString(ret));
+      Serial.printf("Retrying MQTT connection in 5 seconds..\n");
+      mqtt.disconnect();
+      delay(5000);  // wait 5 seconds
+     }
+  Serial.printf("MQTT Connected!\n");
+} 
