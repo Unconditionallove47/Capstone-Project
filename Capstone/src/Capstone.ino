@@ -57,6 +57,11 @@ int airQualitySensorValue;
 //Setting Servo Position
 int servoPosition = 0;
 
+const int SERVOPIN = D5;
+
+const int RELAYPIN = D6;
+
+int Hour;
 //adafruit.io settings for publish and sub
 TCPClient TheClient;
 Adafruit_MQTT_SPARK mqtt(&TheClient, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
@@ -79,9 +84,11 @@ void setup()
 
   Serial.begin(9600);
 
-  myServo.attach(D5);
+  //Servo motor set to D5 pin
+  myServo.attach(SERVOPIN);
 
-  pinMode(D6, OUTPUT);
+  //Fan via relay set to D6 pin
+  pinMode(RELAYPIN, OUTPUT);
 
   // The GPS module initialization
   Serial1.begin(9600);
@@ -96,17 +103,20 @@ void setup()
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   helloWorld();
   Serial.printf("Hello World\n");
+
+  Time.zone(-7);       // MST = -7, MDT = -6
+  Particle.syncTime(); // Sync time with Particle Cloud
 }
 
 void loop()
 
 {
-
+  //connects argon to MQTT Service
   MQTT_connect();
   timeStamp = millis();      // TIMESTAMP TO MILLISECONDS
   DateTime = Time.timeStr(); // Current Date and Time from Particle Time class
-  TimeOnly = DateTime.substring(11, 19);
-
+  TimeOnly = DateTime.substring(11, 13);
+  Hour = TimeOnly.toInt();
   //turns on gps printouts
   while (Serial1.available() > 0)
   {
@@ -117,23 +127,23 @@ void loop()
   }
   delay(1000);
 
-
-
   analogReads();
 
-//  servoMotor();
-  
-// FanWithOccupancy();
+  servoMotor();
+
+  FanWithOccupancy();
+
+  AirQualityfan();
 
   MQTTPing();
 
   MQTTPublish();
 
-
+  // the . c_str () method converts a String to an array of char
+  Serial.printf(" Date and time is %s\n", DateTime.c_str());
+  Serial.printf(" Time is %i\n", TimeOnly.toInt());
+  delay(10000); // only loop every 10 seconds
 }
-
-
-
 
 //Does just about everything for GPS prints/time and display outputs
 void displayGPSInfo()
@@ -190,7 +200,6 @@ void displayGPSInfo()
   }
 }
 
-
 //GPS initialization for GPS
 void helloWorld()
 {
@@ -201,7 +210,6 @@ void helloWorld()
   display.println("GPS Initializing");
   display.display();
 }
-
 
 //connects MQTT automatically using function
 void MQTT_connect()
@@ -236,8 +244,6 @@ void createEventPayLoad()
   GPSObject.publish(jw.getBuffer());
 }
 
-
-
 //Analog Readouts for water sensors,occupancy sensor, and Air Quality Sensor
 void analogReads()
 {
@@ -253,30 +259,27 @@ void analogReads()
   //Reading Occupancy Value
   occupantSensorValue = analogRead(OCCUPANTSENSOR);
   Serial.printf("Occupancy value is %d \n", occupantSensorValue);
-
 }
 
 //Setting servo motor to turn on and off via time signature
 void servoMotor()
 {
-// for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees
-  //   {                                  // in steps of 1 degree
-  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
-  //     delay(5);
-  //   }
-  //   for(servoPosition = 180; servoPosition>=1; servoPosition-=1)     // goes from 180 degrees to 0 degrees
-  //   {
-  //     myServo.write(servoPosition);              // tell servo to go to position in variable 'pos'
-  //     delay(5);
-  //   }
-
+  if (Hour >= 13)
+  {
+    (servoPosition = 0, servoPosition <= 180, servoPosition += 1); // goes from 0 degrees to 180 degrees
+    myServo.write(servoPosition);                                 // tell servo to go to position in variable 'pos'
+  }
+  else // goes from 180 degrees to 0 degrees
+   {
+    (servoPosition = 180, servoPosition >= 1,servoPosition -= 1);
+        myServo.write(servoPosition); // tell servo to go to position in variable 'pos'
+  }
 }
-
 
 //pings MQTT to see if still active
 void MQTTPing()
 {
-//MQTT ping to make sure it still works
+  //MQTT ping to make sure it still works
   if ((millis() - last) > 120000)
   {
     Serial.printf("Pinging MQTT \n");
@@ -287,8 +290,6 @@ void MQTTPing()
     }
     last = millis();
   }
-
-
 }
 
 //publishes mqtt to cloud every 30 seconds
@@ -315,13 +316,24 @@ void MQTTPublish()
 //turns on fan when occupancy sensor detects movement
 void FanWithOccupancy()
 {
-if (analogRead(A2)>=2200)  {
-digitalWrite(D6,HIGH);
+  if (analogRead(A2) >= 2200)
+  {
+    digitalWrite(D6, HIGH);
+  }
+  else
+  {
+    digitalWrite(D6, LOW);
+  }
 }
-else {
-digitalWrite(D6,LOW);
+//turns fan on if air quality is detected as harmful
+void AirQualityfan()
+{
+  if (analogRead(A3) >= 1000)
+  {
+    digitalWrite(D6, HIGH);
+  }
+  else
+  {
+    digitalWrite(D6, LOW);
+  }
 }
-}
-
-
-// void AirQualityfan
