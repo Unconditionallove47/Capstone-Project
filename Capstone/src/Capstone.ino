@@ -142,7 +142,7 @@ void loop()
   // the . c_str () method converts a String to an array of char
   Serial.printf(" Date and time is %s\n", DateTime.c_str());
   Serial.printf(" Time is %i\n", TimeOnly.toInt());
-  delay(10000); // only loop every 10 seconds
+  delay(1000); // only loop every 10 seconds
 }
 
 //Does just about everything for GPS prints/time and display outputs
