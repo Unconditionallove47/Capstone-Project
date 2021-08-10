@@ -123,6 +123,14 @@ void loop()
 
 //  servoMotor();
 
+if (digitalRead(A2)>=2200)  {
+digitalWrite(D6,HIGH);
+}
+else {
+digitalWrite(D6,LOW);
+}
+
+
   // digitalWrite(D6, HIGH); // sets the digital pin D6 on
   // delay(1000);            // waits for a second
   // digitalWrite(D6, LOW);  // sets the digital pin D6 off
