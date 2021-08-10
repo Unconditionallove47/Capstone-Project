@@ -123,22 +123,8 @@ void loop()
 
 //  servoMotor();
   
+// FanWithOccupancy();
 
-  
-if (digitalRead(A2)>=2200)  {
-digitalWrite(D6,HIGH);
-}
-else {
-digitalWrite(D6,LOW);
-}
-
-
-  // digitalWrite(D6, HIGH); // sets the digital pin D6 on
-  // delay(1000);            // waits for a second
-  // digitalWrite(D6, LOW);  // sets the digital pin D6 off
-  // delay(1000);            // waits for a second
-
-  
   MQTTPing();
 
   MQTTPublish();
@@ -270,7 +256,7 @@ void analogReads()
 
 }
 
-
+//Setting servo motor to turn on and off via time signature
 void servoMotor()
 {
 // for(servoPosition = 0; servoPosition < 180; servoPosition += 1)  // goes from 0 degrees to 180 degrees
@@ -287,7 +273,7 @@ void servoMotor()
 }
 
 
-
+//pings MQTT to see if still active
 void MQTTPing()
 {
 //MQTT ping to make sure it still works
@@ -305,11 +291,9 @@ void MQTTPing()
 
 }
 
-
+//publishes mqtt to cloud every 30 seconds
 void MQTTPublish()
 {
-// publish to cloud every 30 seconds
-
   toiletSensorValue = (analogRead(A0));
   sinkSensorValue = (analogRead(A1));
   occupantSensorValue = (analogRead(A2));
@@ -326,6 +310,18 @@ void MQTTPublish()
     }
     lastTime = millis();
   }
-
-
 }
+
+//turns on fan when occupancy sensor detects movement
+void FanWithOccupancy()
+{
+if (analogRead(A2)>=2200)  {
+digitalWrite(D6,HIGH);
+}
+else {
+digitalWrite(D6,LOW);
+}
+}
+
+
+// void AirQualityfan
