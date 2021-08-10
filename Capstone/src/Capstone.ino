@@ -122,7 +122,9 @@ void loop()
   analogReads();
 
 //  servoMotor();
+  
 
+  
 if (digitalRead(A2)>=2200)  {
 digitalWrite(D6,HIGH);
 }
