@@ -31,8 +31,7 @@ void analogReads();
 void servoMotor();
 void MQTTPing();
 void MQTTPublish();
-void FanWithOccupancy();
-void AirQualityfan();
+void FanWithOccupancyAndAQ();
 #line 19 "c:/Users/kalif/Documents/IoT/Capstone-Project/Capstone/src/Capstone.ino"
 const unsigned long PUBLISH_PERIOD = 120000;
 const unsigned long SERIAL_PERIOD = 5000;
@@ -149,9 +148,9 @@ void loop()
 
   servoMotor();
 
-  FanWithOccupancy();
+  FanWithOccupancyAndAQ();
 
-  AirQualityfan();
+  // AirQualityfan();
 
   MQTTPing();
 
@@ -160,7 +159,7 @@ void loop()
   // the . c_str () method converts a String to an array of char
   Serial.printf(" Date and time is %s\n", DateTime.c_str());
   Serial.printf(" Time is %i\n", TimeOnly.toInt());
-  delay(10000); // only loop every 10 seconds
+  delay(1000); // only loop every 10 seconds
 }
 
 //Does just about everything for GPS prints/time and display outputs
@@ -282,15 +281,15 @@ void analogReads()
 //Setting servo motor to turn on and off via time signature
 void servoMotor()
 {
-  if (Hour >= 13)
+  if ((Hour >= 13) && (servoPosition != 180))
   {
-    (servoPosition = 0, servoPosition <= 180, servoPosition += 1); // goes from 0 degrees to 180 degrees
+     servoPosition=180;
     myServo.write(servoPosition);                                 // tell servo to go to position in variable 'pos'
   }
-  else // goes from 180 degrees to 0 degrees
+  if ((Hour < 13) && (servoPosition != 0))
    {
-    (servoPosition = 180, servoPosition >= 1,servoPosition -= 1);
-        myServo.write(servoPosition); // tell servo to go to position in variable 'pos'
+     servoPosition=5;
+        myServo.write(servoPosition);
   }
 }
 
@@ -331,22 +330,10 @@ void MQTTPublish()
   }
 }
 
-//turns on fan when occupancy sensor detects movement
-void FanWithOccupancy()
+//turns on fan when occupancy sensor detects movement or air quality is harmful
+void FanWithOccupancyAndAQ()
 {
-  if (analogRead(A2) >= 2200)
-  {
-    digitalWrite(D6, HIGH);
-  }
-  else
-  {
-    digitalWrite(D6, LOW);
-  }
-}
-//turns fan on if air quality is detected as harmful
-void AirQualityfan()
-{
-  if (analogRead(A3) >= 1000)
+  if (analogRead(A2) >= 2200 | analogRead(A3) >= 1000)
   {
     digitalWrite(D6, HIGH);
   }

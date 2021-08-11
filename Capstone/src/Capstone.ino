@@ -131,9 +131,9 @@ void loop()
 
   servoMotor();
 
-  FanWithOccupancy();
+  FanWithOccupancyAndAQ();
 
-  AirQualityfan();
+  // AirQualityfan();
 
   MQTTPing();
 
@@ -264,15 +264,15 @@ void analogReads()
 //Setting servo motor to turn on and off via time signature
 void servoMotor()
 {
-  if (Hour >= 13)
+  if ((Hour >= 13) && (servoPosition != 180))
   {
-    (servoPosition = 0, servoPosition <= 180, servoPosition += 1); // goes from 0 degrees to 180 degrees
+     servoPosition=180;
     myServo.write(servoPosition);                                 // tell servo to go to position in variable 'pos'
   }
-  else // goes from 180 degrees to 0 degrees
+  if ((Hour < 13) && (servoPosition != 0))
    {
-    (servoPosition = 180, servoPosition >= 1,servoPosition -= 1);
-        myServo.write(servoPosition); // tell servo to go to position in variable 'pos'
+     servoPosition=5;
+        myServo.write(servoPosition);
   }
 }
 
@@ -313,10 +313,10 @@ void MQTTPublish()
   }
 }
 
-//turns on fan when occupancy sensor detects movement
-void FanWithOccupancy()
+//turns on fan when occupancy sensor detects movement or air quality is harmful
+void FanWithOccupancyAndAQ()
 {
-  if (analogRead(A2) >= 2200)
+  if (analogRead(A2) >= 2200 | analogRead(A3) >= 1000)
   {
     digitalWrite(D6, HIGH);
   }
@@ -325,15 +325,15 @@ void FanWithOccupancy()
     digitalWrite(D6, LOW);
   }
 }
-//turns fan on if air quality is detected as harmful
-void AirQualityfan()
-{
-  if (analogRead(A3) >= 1000)
-  {
-    digitalWrite(D6, HIGH);
-  }
-  else
-  {
-    digitalWrite(D6, LOW);
-  }
-}
+// //turns fan on if air quality is detected as harmful
+// void AirQualityfan()
+// {
+//   if (analogRead(A3) >= 1000)
+//   {
+//     digitalWrite(D6, HIGH);
+//   }
+//   else
+//   {
+//     digitalWrite(D6, LOW);
+//   }
+// }
