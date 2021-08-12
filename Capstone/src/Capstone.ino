@@ -133,7 +133,6 @@ void loop()
 
   FanWithOccupancyAndAQ();
 
-  // AirQualityfan();
 
   MQTTPing();
 
@@ -325,15 +324,3 @@ void FanWithOccupancyAndAQ()
     digitalWrite(D6, LOW);
   }
 }
-// //turns fan on if air quality is detected as harmful
-// void AirQualityfan()
-// {
-//   if (analogRead(A3) >= 1000)
-//   {
-//     digitalWrite(D6, HIGH);
-//   }
-//   else
-//   {
-//     digitalWrite(D6, LOW);
-//   }
-// }

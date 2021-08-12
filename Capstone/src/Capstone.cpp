@@ -150,7 +150,6 @@ void loop()
 
   FanWithOccupancyAndAQ();
 
-  // AirQualityfan();
 
   MQTTPing();
 
